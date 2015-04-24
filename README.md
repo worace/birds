@@ -1,14 +1,27 @@
-# birds
+## birds
 
-A Clojure library designed to ... well, that part is up to you.
+Example implementation of Craig Reynolds' [Boids automata algorithm](http://www.red3d.com/cwr/boids/) in
+Clojure using the Quil library as an interface to Processing.
 
-## Usage
+### Rules for Boids:
 
-FIXME
+1. Birds attempt to avoid collisions with flockmates by steering away
+   from neighbors average position when too close.
+2. Birds attempt to follow a shared trajectory by steering toward the
+   average heading of their neighbors.
+3. Birds attempt to "flock" together by steering toward the average
+   position of their neighbors.
 
-## License
+Other topics to explore:
 
-Copyright © 2015 FIXME
+* Obstacle avoidance?
+* Goal-seeking? (steer toward mouse or some other defined objective?)
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+### Usage
+
+Should be able to run from the project root with
+
+```
+lein deps
+lein run
+```
