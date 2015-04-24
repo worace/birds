@@ -13,9 +13,12 @@
   (q/ellipse (first (:position bird)) (last (:position bird)) 5 5)
   (apply q/line (b/movement-vector bird)))
 
+(defn draw-flock [flock]
+  (doseq [bird flock] (draw-bird bird)))
+
 (defn draw [state]
   (q/background 50 70 80 5.0)
-  (doseq [bird (:flock state)] (draw-bird bird)))
+  (draw-flock (:flock state)))
 
 (defn -main
   []
