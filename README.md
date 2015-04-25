@@ -17,6 +17,18 @@ Other topics to explore:
 * Obstacle avoidance?
 * Goal-seeking? (steer toward mouse or some other defined objective?)
 
+#### Issues
+
+* Rotation -- current heading rotation implementation has issues with
+  turning in the optimal direction (i.e. turning right 30 degrees
+  instead of left 330 degrees to reach the same heading). This produces
+  some jumpy behavior sometimes.
+
+#### sample
+
+A sample video of what the algorithm looks like so far can be seenhere:
+[https://vimeo.com/126003095](https://vimeo.com/126003095).
+
 ### Usage
 
 Should be able to run from the project root with
@@ -25,3 +37,4 @@ Should be able to run from the project root with
 lein deps
 lein run
 ```
+
