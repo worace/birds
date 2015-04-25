@@ -23,6 +23,10 @@ Other topics to explore:
   turning in the optimal direction (i.e. turning right 30 degrees
   instead of left 330 degrees to reach the same heading). This produces
   some jumpy behavior sometimes.
+* Pretty-fi the rendering -- would be cool to get some nicer
+  colors/design/shapes into the Rendering
+* ClojureScript/processing JS -- my eventual goal is to compile all this
+  down into clojurescript and expose it on the web somehow
 
 #### sample
 
