@@ -58,11 +58,32 @@
     (recur (+ TWO-PI radians))
     (mod radians TWO-PI)))
 
+;; Is this actually valid? Currently comparing angle from origin to bird
+;; vs angle from origin to target position
+;; may need to make this more sophisticated to take into
+;; account the direction the bird is currently facing
 (defn steer-toward-position
   [bird position]
   (if (< (angle-to-position (:position bird)) (angle-to-position position))
     (assoc bird :dir (direction (+ (:dir bird) 0.1)))
     (assoc bird :dir (direction (- (:dir bird) 0.1)))))
+
+(defn steer-from-position
+  [bird position]
+  (if (< (angle-to-position (:position bird)) (angle-to-position position))
+    (assoc bird :dir (direction (- (:dir bird) 0.1)))
+    (assoc bird :dir (direction (+ (:dir bird) 0.1)))))
+
+(defn adjust-course
+  [bird flock]
+  (let [nearby (neighbors bird flock)]
+    (if (empty? nearby)
+      bird
+      (if (crowded? bird nearby)
+        ;; pick first crowder and steer away from it??
+        ;; TODO -- also this should be memoized (repeating crowded calc)
+        (steer-from-position bird (:position (first (neighbors bird nearby separation-radius))))
+        bird))))
 
 ;(println (q/atan2 0 1)) ; 0
 ;(println (q/atan2 1 0)) ; pi/2
