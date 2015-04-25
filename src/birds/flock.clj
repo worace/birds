@@ -2,10 +2,10 @@
   (:require [quil.core :as q]
             [birds.bird :as b]))
 
-(def separation-radius 10)
-(def straying-radius 20)
-(def cohesion-radius 20)
-(def neighborhood-radius 60)
+(def separation-radius 20)
+(def straying-radius 50)
+(def cohesion-radius 50)
+(def neighborhood-radius 100)
 (def PI Math/PI)
 (def TWO-PI (* 2 Math/PI))
 
@@ -14,9 +14,6 @@
 (defn create-flock
   ([] (create-flock 10))
   ([n] (take n (repeatedly b/create-bird))))
-
-(defn move-flock [flock]
-  (map (fn [bird] (b/move-bird bird)) flock))
 
 (defn neighbors
   ([bird flock] (neighbors bird flock neighborhood-radius))
@@ -94,7 +91,7 @@
   )
 
 (defn adjust-course
-  [bird flock]
+  [flock bird]
   (let [nearby (neighbors bird flock)]
     (if (empty? nearby)
       bird ;; isolated bird maintains course
@@ -110,6 +107,17 @@
             ;;so steer toward their avg heading to maintain course
             (steer-toward-avg-heading bird nearby)
             ))))))
+
+(defn adjust-courses
+  [flock]
+  (map (partial adjust-course flock) flock))
+
+(defn move-flock [flock]
+  (map (fn [bird] (b/move-bird bird)) flock))
+
+(defn update-flock
+  [flock]
+  (move-flock (adjust-courses flock)))
 
 ;(println (q/atan2 0 1)) ; 0
 ;(println (q/atan2 1 0)) ; pi/2

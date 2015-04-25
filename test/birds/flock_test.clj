@@ -121,13 +121,13 @@
   (testing "if a bird is isolated from any neighbors, it will fly in a straight line"
     (let [bird-one {:id 1 :dir 0 :speed 1 :position [0 0]}
           bird-two {:id 2 :dir 0 :speed 1 :position [200 200]}]
-      (is (= (:dir (adjust-course bird-one [bird-one bird-two])) 0)))))
+      (is (= (:dir (adjust-course [bird-one bird-two] bird-one)) 0)))))
 
 (deftest test-bird-position-reactions
   (testing "if a bird is too close to a neighbor, it will steer away from it"
     (let [bird-one {:id 1 :dir 0 :speed 1 :position [0 0]}
           bird-two {:id 2 :dir 0 :speed 1 :position [1 1]}]
-      (let [new-dir (:dir (adjust-course bird-one [bird-one bird-two]))]
+      (let [new-dir (:dir (adjust-course [bird-one bird-two] bird-one))]
         (is (and (> new-dir PI)
                  (< new-dir TWO-PI))))))
 
@@ -136,7 +136,7 @@
           bird-two   {:id 2 :dir 0 :speed 1 :position [20 20]}
           bird-three {:id 2 :dir 0 :speed 1 :position [30 30]}]
       (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
-      (let [new-dir (:dir (adjust-course bird-one [bird-one bird-two bird-three]))]
+      (let [new-dir (:dir (adjust-course [bird-one bird-two bird-three] bird-one))]
         (is (and (> new-dir 0)
                  (< new-dir (/ PI 2)))))))
 
@@ -148,10 +148,20 @@
           bird-two   {:id 2 :dir (/ PI 4) :speed 1 :position [15 0]}
           bird-three {:id 2 :dir (/ PI 4) :speed 1 :position [-15 0]}]
       (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
-      (let [new-dir (:dir (adjust-course bird-one [bird-one bird-two bird-three]))]
+      (let [new-dir (:dir (adjust-course [bird-one bird-two bird-three] bird-one))]
         (is (and (> new-dir (/ PI 4))
                  (< new-dir (/ PI 2)))))))
   )
+
+;(deftest test-adjusting-course-of-whole-flock
+  ;(testing "it adjusts heading for each bird"
+    ;(let [flock [{:id 1 :dir (/ PI 2) :speed 1 :position [0 0]}
+                 ;{:id 2 :dir (/ PI 4) :speed 1 :position [15 0]}
+                 ;{:id 3 :dir (* 3 (/ PI 4)) :speed 1 :position [-15 0]}]
+          ;]
+      ;;; pi/2 avg 3pi/4 -> 5pi/8
+      ;;; (5pi/8 from pi/4)/2 -> 0.5890
+      ;(is (= [(/ PI 2) (* 3 (/ PI 8)) (* 5 (/ PI 8))] (map :dir (adjust-courses flock)))))))
 
 
 

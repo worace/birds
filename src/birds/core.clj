@@ -4,13 +4,30 @@
             [birds.bird :as b]
             [birds.flock :as f]))
 
-(defn setup [] {:flock (f/create-flock)})
+(def bounds [800 800])
+(defn setup [] {:flock (f/create-flock 30)})
+
+(defn wrap-coord
+  [coord bound]
+  (if (< coord 0)
+    (+ bound coord)
+    (mod coord bound)))
+
+(defn wrap-birds
+  [flock bounds]
+  (map (fn [b]
+         (let [pos (:position b)
+               newx (wrap-coord (first pos) (first bounds))
+               newy (wrap-coord (last pos) (last bounds))]
+           (assoc b :position [newx newy])))
+       flock))
 
 (defn update [state]
-  (assoc state :flock (f/move-flock (:flock state))))
+  (println "update")
+  (assoc state :flock (wrap-birds (f/update-flock (:flock state)) bounds)))
 
 (defn draw-bird [bird]
-  (q/ellipse (first (:position bird)) (last (:position bird)) 5 5)
+  (q/ellipse (first (:position bird)) (last (:position bird)) 10 10)
   (apply q/line (b/movement-vector bird)))
 
 (defn draw-flock [flock]
@@ -24,7 +41,7 @@
   []
   (q/defsketch birds
     :host "canvas"
-    :size [500 500]
+    :size [800 800]
     :setup setup
     :update update
     :draw draw

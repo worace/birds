@@ -2,7 +2,7 @@
   (:require [quil.core :as q]))
 
 (defn create-bird []
-  {:position [(rand 500) (rand 500)] :dir (rand q/TWO-PI) :speed 10})
+  {:position [(rand 500) (rand 500)] :dir (rand q/TWO-PI) :speed 5})
 
 (defn next-position [bird]
   (let [x (first (:position bird))
