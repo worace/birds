@@ -51,4 +51,28 @@
                  {:id 4 :dir 0 :speed 1 :position [3 3]}]]
       (is (= [2 2] (avg-position flock))))))
 
+(deftest test-finding-avg-heading-of-group
+  (testing "it averages angular heading of provided birds"
+    (let [flock [{:id 1 :dir 1 :speed 1 :position [1 1]}
+                 {:id 2 :dir 2 :speed 1 :position [2 2]}
+                 {:id 4 :dir 3 :speed 1 :position [3 3]}]]
+      (is (= 2 (avg-heading flock))))))
+
+(deftest test-angle-validation
+  (testing "diffs negative angles from 2pi"
+    (is (= (/ (* 3 Math/PI) 2) (direction (/ Math/PI -2))))))
+
+(deftest test-steering-position
+  (testing "updates the bird's direction to point closer to provided coordinate"
+    (let [bird {:id 1 :dir 0 :speed 1 :position [0 0]}]
+       ;; bird at origin heading east
+       ;; steering toward 5,5 should rotate bird counter clockwise
+      (is (> (:dir (steer-toward-position bird [5 5])) 0))
+       ;; steering toward -1,-1 should rotate bird clockwise
+      (is (and (> (:dir (steer-toward-position bird [1 -1])) 0)
+               (< (:dir (steer-toward-position bird [1 -1])) TWO-PI))))))
+
+
+
+
 
