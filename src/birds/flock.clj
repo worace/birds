@@ -4,6 +4,7 @@
 
 (def separation-radius 10)
 (def straying-radius 20)
+(def cohesion-radius 20)
 (def neighborhood-radius 60)
 (def PI Math/PI)
 (def TWO-PI (* 2 Math/PI))
@@ -45,6 +46,7 @@
 (defn straying?
   ([bird buddies] (straying? bird buddies straying-radius))
   ([bird buddies radius]
+   ;(println (str "check straying for " bird buddies (avg-position buddies) (dist (:position bird) (avg-position buddies))))
    (> (dist (:position bird) (avg-position buddies)) radius)))
 
 (defn angle-to-position
@@ -74,16 +76,40 @@
     (assoc bird :dir (direction (- (:dir bird) 0.1)))
     (assoc bird :dir (direction (+ (:dir bird) 0.1)))))
 
+(defn steer-toward-avg-heading
+  [bird neighbors]
+  (let [avg (avg-heading neighbors)
+        current (:dir bird)
+        diff (Math/abs (- current avg))
+        adj (/ diff 2)]
+    ;(println "******************")
+    ;(println (str "AVG: " avg))
+    ;(println (str "Current: " current))
+    ;(println (str "Diff: " diff))
+    ;(println (str "Adjustment: " adj))
+    ;(println "******************")
+    (if (> current avg)
+      (assoc bird :dir (- current adj))
+      (assoc bird :dir (+ current adj))))
+  )
+
 (defn adjust-course
   [bird flock]
   (let [nearby (neighbors bird flock)]
     (if (empty? nearby)
-      bird
+      bird ;; isolated bird maintains course
       (if (crowded? bird nearby)
         ;; pick first crowder and steer away from it??
         ;; TODO -- also this should be memoized (repeating crowded calc)
         (steer-from-position bird (:position (first (neighbors bird nearby separation-radius))))
-        bird))))
+        (let [nearby-avg (avg-position nearby)]
+          (if (straying? bird nearby)
+            ;; bird is straying from neighbors; so steer toward their position
+            (steer-toward-position bird nearby-avg)
+            ;;else bird is close enough to neighbors
+            ;;so steer toward their avg heading to maintain course
+            (steer-toward-avg-heading bird nearby)
+            ))))))
 
 ;(println (q/atan2 0 1)) ; 0
 ;(println (q/atan2 1 0)) ; pi/2

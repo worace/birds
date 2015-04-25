@@ -83,6 +83,40 @@
                (< (:dir (steer-from-position bird [5 5])) TWO-PI))))))
 ;;TODO ^^^ Consolidate steer-toward and steer-from
 
+(deftest test-steering-toward-avg-heading
+  (testing "it rotates the bird half the diff b/t bird's heading and neighbors' avg in pos dir (heading-up)"
+    (let [bird-one   {:id 1 :dir 1.0 :speed 1 :position [0 0]}
+          bird-two   {:id 2 :dir 2.0 :speed 1 :position [15 0]}
+          bird-three {:id 3 :dir 2.0 :speed 1 :position [-15 0]}]
+      (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
+      (let [new-dir (:dir (steer-toward-avg-heading bird-one [bird-two bird-three]))]
+        (is (= 1.5 new-dir)))))
+  (testing "it rotates the bird half the diff b/t bird's heading and neighbors' avg in negative dir (falling off)"
+    (let [bird-one   {:id 1 :dir 2.0 :speed 1 :position [0 0]}
+          bird-two   {:id 2 :dir 1.0 :speed 1 :position [15 0]}
+          bird-three {:id 3 :dir 1.0 :speed 1 :position [-15 0]}]
+      (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
+      (let [new-dir (:dir (steer-toward-avg-heading bird-one [bird-two bird-three]))]
+        (is (= 1.5 new-dir)))))
+  (testing "it handles 'wrapping' Q1 to Q4...sort of (should wrap counter-clockwise; currently only turns CW)"
+      (let [bird-one   {:id 1 :dir (/ PI 4) :speed 1 :position [0 0]}
+            bird-two   {:id 2 :dir (* 7 (/ PI 4)) :speed 1 :position [15 0]}
+            bird-three {:id 3 :dir (* 7 (/ PI 4)) :speed 1 :position [-15 0]}]
+        (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
+        (let [new-dir (:dir (steer-toward-avg-heading bird-one [bird-two bird-three]))]
+          (is (= PI new-dir)))))
+  )
+
+;; TODO -- pending test case: going from pi/4 toward avg heading 7pi/4 should take bird
+;; to heading 0 but with current impl it takes bird to pi
+;(testing "it handles 'wrapping' Q1 to Q4"
+    ;(let [bird-one   {:id 1 :dir (/ PI 4) :speed 1 :position [0 0]}
+          ;bird-two   {:id 2 :dir (* 7 (/ PI 4)) :speed 1 :position [15 0]}
+          ;bird-three {:id 3 :dir (* 7 (/ PI 4)) :speed 1 :position [-15 0]}]
+      ;(is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
+      ;(let [new-dir (:dir (steer-toward-avg-heading bird-one [bird-two bird-three]))]
+        ;(is (= 0 new-dir)))))
+
 (deftest test-bird-course-adjustments
   (testing "if a bird is isolated from any neighbors, it will fly in a straight line"
     (let [bird-one {:id 1 :dir 0 :speed 1 :position [0 0]}
@@ -95,7 +129,29 @@
           bird-two {:id 2 :dir 0 :speed 1 :position [1 1]}]
       (let [new-dir (:dir (adjust-course bird-one [bird-one bird-two]))]
         (is (and (> new-dir PI)
-                 (< new-dir TWO-PI)))))))
+                 (< new-dir TWO-PI))))))
+
+  (testing "if a bird is straying from its neighbors it will steer toward them"
+    (let [bird-one   {:id 1 :dir 0 :speed 1 :position [0 0]}
+          bird-two   {:id 2 :dir 0 :speed 1 :position [20 20]}
+          bird-three {:id 2 :dir 0 :speed 1 :position [30 30]}]
+      (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
+      (let [new-dir (:dir (adjust-course bird-one [bird-one bird-two bird-three]))]
+        (is (and (> new-dir 0)
+                 (< new-dir (/ PI 2)))))))
+
+  (testing "if a bird is close enough to nearby neighbors it will steer toward their avg heading"
+    ;; need birds outside of crowding radius (10) but inside straying radius (20)
+    ;; /.....|....../
+    ;; ^^ bird in middle should steer right to follow neighbors
+    (let [bird-one   {:id 1 :dir (/ PI 2) :speed 1 :position [0 0]}
+          bird-two   {:id 2 :dir (/ PI 4) :speed 1 :position [15 0]}
+          bird-three {:id 2 :dir (/ PI 4) :speed 1 :position [-15 0]}]
+      (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
+      (let [new-dir (:dir (adjust-course bird-one [bird-one bird-two bird-three]))]
+        (is (and (> new-dir (/ PI 4))
+                 (< new-dir (/ PI 2)))))))
+  )
 
 
 
