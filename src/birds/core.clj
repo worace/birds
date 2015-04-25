@@ -23,7 +23,6 @@
        flock))
 
 (defn update [state]
-  (println "update")
   (assoc state :flock (wrap-birds (f/update-flock (:flock state)) bounds)))
 
 (defn draw-bird [bird]

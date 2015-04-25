@@ -29,8 +29,9 @@
                  {:id 2 :dir 0 :speed 1 :position [2.2 2.2]}
                  {:id 3 :dir 0 :speed 1 :position [5 5]}
                  {:id 4 :dir 0 :speed 1 :position [20 20]}]]
-      (is (crowded? (first flock) flock))
-      (is (not (crowded? (last flock) flock))))))
+      ;;example set up using radius of 10
+      (is (crowded? (first flock) flock 10))
+      (is (not (crowded? (last flock) flock 10))))))
 
 (deftest test-straying?
   (testing "it determines whether a bird is straying from its neighbors (wants to stay close)"
@@ -133,8 +134,8 @@
 
   (testing "if a bird is straying from its neighbors it will steer toward them"
     (let [bird-one   {:id 1 :dir 0 :speed 1 :position [0 0]}
-          bird-two   {:id 2 :dir 0 :speed 1 :position [20 20]}
-          bird-three {:id 2 :dir 0 :speed 1 :position [30 30]}]
+          bird-two   {:id 2 :dir 0 :speed 1 :position [50 50]}
+          bird-three {:id 2 :dir 0 :speed 1 :position [70 70]}]
       (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
       (let [new-dir (:dir (adjust-course [bird-one bird-two bird-three] bird-one))]
         (is (and (> new-dir 0)
@@ -145,9 +146,10 @@
     ;; /.....|....../
     ;; ^^ bird in middle should steer right to follow neighbors
     (let [bird-one   {:id 1 :dir (/ PI 2) :speed 1 :position [0 0]}
-          bird-two   {:id 2 :dir (/ PI 4) :speed 1 :position [15 0]}
-          bird-three {:id 2 :dir (/ PI 4) :speed 1 :position [-15 0]}]
+          bird-two   {:id 2 :dir (/ PI 4) :speed 1 :position [40 0]}
+          bird-three {:id 2 :dir (/ PI 4) :speed 1 :position [-40 0]}]
       (is (= 2 (count (neighbors bird-one [bird-one bird-two bird-three]))))
+      (is (not (crowded? bird-one [bird-two bird-three])))
       (let [new-dir (:dir (adjust-course [bird-one bird-two bird-three] bird-one))]
         (is (and (> new-dir (/ PI 4))
                  (< new-dir (/ PI 2)))))))
